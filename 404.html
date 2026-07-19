@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 · Ischium's Collection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Noto+Serif+SC:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="https://res.cloudinary.com/dp5ayfo4z/image/upload/v1775668521/A5FB6ECA8E02B834821907C7618741E5_uzf777.png">
+<style>
+:root {
+  --bg:   #f7f4ee;
+  --ink:  #181814;
+  --ink2: #5a574e;
+  --ink3: #9a9590;
+  --rule: #d8d2c4;
+  --pv:   #7a3b28;
+  --mono: 'DM Mono', monospace;
+  --serif:'Cormorant Garamond', 'Noto Serif SC', serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body {
+  background: #14161a;
+  color: #eee9dd;
+  font-family: var(--serif);
+  min-height: 100vh; min-height: 100dvh;
+  display: flex; align-items: center; justify-content: center;
+  overflow-x: hidden; overflow-y: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+a { color: #eee9dd; }
+a:hover { color: #ffffff; }
+
+/* 边框画框 —— 与开屏扉页同构 */
+.frame {
+  position: fixed; inset: 1.5rem;
+  border: 1px solid rgba(238,233,221,0.4);
+  pointer-events: none;
+}
+.frame::before {
+  content: '';
+  position: absolute; inset: 7px;
+  border: 1px solid rgba(238,233,221,0.15);
+}
+
+/* 星空 */
+.stars { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.stars circle { fill: #cfc9ba; }
+.stars circle.tw { animation: starTwinkle 6s ease-in-out var(--d, 0s) infinite; }
+.stars line { stroke: #cfc9ba; opacity: 0.22; stroke-width: 1; }
+/* 一颗流星 —— 迷路的那颗 */
+.meteor {
+  position: fixed; top: 18%; left: -8%;
+  width: 130px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(238,233,221,0.8));
+  transform: rotate(16deg);
+  animation: meteor 7s ease-in 2s infinite;
+  opacity: 0;
+}
+@keyframes starTwinkle {
+  0%, 100% { opacity: var(--o, 0.7); }
+  50%      { opacity: calc(var(--o, 0.7) * 0.35); }
+}
+@keyframes meteor {
+  0%   { opacity: 0; transform: rotate(16deg) translateX(0); }
+  4%   { opacity: 1; }
+  18%  { opacity: 0; transform: rotate(16deg) translateX(70vw); }
+  100% { opacity: 0; transform: rotate(16deg) translateX(70vw); }
+}
+
+.inner {
+  position: relative;
+  text-align: center;
+  padding: 3.5rem 2rem 5.5rem; /* 上留印章位，下留 exlibris 位 */
+  max-width: 34rem;
+}
+.eyebrow {
+  font-family: var(--mono); font-size: 0.6rem;
+  letter-spacing: 0.4em; text-indent: 0.4em;
+  text-transform: uppercase;
+  color: rgba(238,233,221,0.5);
+  margin-bottom: 2.4rem;
+}
+.code {
+  font-size: clamp(5rem, 18vw, 9rem);
+  font-weight: 300; line-height: 1;
+  letter-spacing: 0.08em; text-indent: 0.08em;
+}
+.code em { font-style: italic; color: rgba(238,233,221,0.65); }
+.orn {
+  display: flex; align-items: center; justify-content: center; gap: 1rem;
+  margin: 2rem auto;
+  color: rgba(238,233,221,0.6); font-size: 1rem;
+}
+.orn::before, .orn::after {
+  content: ''; width: 3.5rem; height: 1px;
+  background: rgba(238,233,221,0.25);
+}
+.title {
+  font-size: clamp(1.4rem, 4vw, 1.9rem);
+  font-weight: 400; letter-spacing: 0.15em; text-indent: 0.15em;
+  margin-bottom: 1.2rem;
+}
+.desc {
+  font-weight: 300; font-size: 1rem; line-height: 1.85;
+  color: rgba(238,233,221,0.7);
+  margin-bottom: 2.6rem;
+}
+.actions { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+.btn {
+  display: inline-flex; align-items: center; gap: 0.8rem;
+  font-family: var(--mono); font-size: 0.62rem;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: #eee9dd; border: 1px solid rgba(238,233,221,0.7);
+  background: none; padding: 0.85rem 1.8rem;
+  cursor: pointer; text-decoration: none;
+  transition: all 0.25s;
+}
+.btn:hover { background: #eee9dd; color: #14161a; }
+.btn.ghost { border-color: rgba(238,233,221,0.25); color: rgba(238,233,221,0.6); }
+.btn.ghost:hover { background: none; color: #eee9dd; border-color: rgba(238,233,221,0.7); }
+
+/* 未编目印章 */
+.stamp {
+  position: absolute; top: 1rem; right: -0.6rem;
+  transform: rotate(8deg);
+  border: 2px solid rgba(238,233,221,0.45); color: rgba(238,233,221,0.45);
+  font-family: var(--mono); font-size: 0.55rem;
+  letter-spacing: 0.3em; text-indent: 0.3em;
+  text-transform: uppercase; text-align: center;
+  padding: 0.5rem 0.85rem; line-height: 1.7;
+  pointer-events: none;
+}
+.coords {
+  margin-top: 3rem;
+  font-family: var(--mono); font-size: 0.55rem;
+  letter-spacing: 0.25em; white-space: nowrap;
+  color: rgba(238,233,221,0.35);
+}
+.exlibris {
+  position: fixed; bottom: 2.6rem; left: 0; right: 0;
+  text-align: center;
+  font-family: var(--mono); font-size: 0.52rem;
+  letter-spacing: 0.3em; text-indent: 0.3em;
+  text-transform: uppercase;
+  color: rgba(238,233,221,0.3);
+}
+
+@media (max-width: 600px) {
+  .frame { inset: 0.8rem; }
+  .eyebrow { letter-spacing: 0.2em; text-indent: 0.2em; white-space: nowrap; font-size: 0.55rem; }
+  .desc { font-size: 0.95rem; }
+  .stamp { top: 0; right: 0; }
+  .coords { letter-spacing: 0.12em; font-size: 0.5rem; }
+  .exlibris { bottom: 1.6rem; }
+}
+/* 矮视口：收紧纵向节奏，保证不重叠 */
+@media (max-height: 620px) {
+  .code { font-size: clamp(3.5rem, 12vh, 6rem); }
+  .eyebrow { margin-bottom: 1.2rem; }
+  .orn { margin: 1.1rem auto; }
+  .title { margin-bottom: 0.8rem; }
+  .desc { margin-bottom: 1.6rem; }
+  .coords { margin-top: 1.6rem; }
+  .inner { padding-top: 3rem; padding-bottom: 4.5rem; }
+  .exlibris { display: none; }
+}
+</style>
+</head>
+<body>
+
+<svg class="stars" aria-hidden="true">
+  <line x1="10%" y1="30%" x2="17%" y2="20%"/>
+  <line x1="17%" y1="20%" x2="25%" y2="32%"/>
+  <circle cx="10%" cy="30%" r="2" opacity="0.6"/>
+  <circle cx="17%" cy="20%" r="2.4" opacity="0.75" class="tw" style="--d:.5s"/>
+  <circle cx="25%" cy="32%" r="1.8" opacity="0.55"/>
+  <line x1="78%" y1="70%" x2="85%" y2="60%"/>
+  <line x1="85%" y1="60%" x2="92%" y2="68%"/>
+  <circle cx="78%" cy="70%" r="2" opacity="0.6"/>
+  <circle cx="85%" cy="60%" r="2.4" opacity="0.75" class="tw" style="--d:1.4s"/>
+  <circle cx="92%" cy="68%" r="1.8" opacity="0.55"/>
+  <circle cx="7%" cy="75%" r="1.4" opacity="0.4" class="tw" style="--d:2.2s"/>
+  <circle cx="35%" cy="12%" r="1.3" opacity="0.4"/>
+  <circle cx="55%" cy="8%" r="1.5" opacity="0.45" class="tw" style="--d:3s"/>
+  <circle cx="70%" cy="18%" r="1.3" opacity="0.4"/>
+  <circle cx="90%" cy="26%" r="1.5" opacity="0.45" class="tw" style="--d:1s"/>
+  <circle cx="45%" cy="90%" r="1.3" opacity="0.35"/>
+  <circle cx="20%" cy="55%" r="1.2" opacity="0.3"/>
+  <circle cx="63%" cy="85%" r="1.4" opacity="0.4" class="tw" style="--d:2.6s"/>
+</svg>
+<div class="meteor" aria-hidden="true"></div>
+<div class="frame" aria-hidden="true"></div>
+
+<main class="inner">
+  <div class="stamp">未编目<br>Uncatalogued</div>
+  <div class="eyebrow">Archive · File Not Found</div>
+  <h1 class="code">4<em>0</em>4</h1>
+  <div class="orn">❦</div>
+  <p class="title">此页尚未收入档案</p>
+  <p class="desc">你寻找的卷宗或许尚未写成，或许已在某次归档中散佚。星图之外仍是未测绘的暗海——请循来路返回。</p>
+  <div class="actions">
+    <a class="btn" href="/archieve/">返回档案馆 →</a>
+    <a class="btn ghost" href="javascript:history.back()">回上一页</a>
+  </div>
+  <div class="coords">RA — · DEC — · POSITION UNKNOWN</div>
+</main>
+
+<div class="exlibris">Ex Libris · Ischium's Collection</div>
+
+</body>
+</html>

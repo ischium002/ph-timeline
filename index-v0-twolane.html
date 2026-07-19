@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PH Chronicle · A Timeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Noto+Serif+SC:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   TOKENS — inherited from archive site
+═══════════════════════════════════════════ */
+:root {
+  --bg:        #f7f4ee;
+  --bg2:       #efebe3;
+  --ink:       #181814;
+  --ink2:      #5a574e;
+  --ink3:      #9a9590;
+  --rule:      #d8d2c4;
+  --hs:        #1e3a5c;   /* Hesperon — 夜蓝 */
+  --hs-tint:   #e6edf5;
+  --ph:        #2d5a3d;   /* Phorion — 墨绿 */
+  --ph-tint:   #e8f0ea;
+  --cp:        #1c4230;
+  --mono:      'DM Mono', monospace;
+  --serif:     'Cormorant Garamond', 'Noto Serif SC', serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-weight: 300;
+  letter-spacing: 0.01em;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ═══════════════════════════════════════════
+   NAV
+═══════════════════════════════════════════ */
+.global-nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 3rem;
+  height: 3.5rem;
+  background: var(--bg);
+  border-bottom: 1px solid var(--rule);
+}
+.nav-logo {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--ink2);
+}
+.nav-back {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 2px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.nav-back:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+/* ═══════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════ */
+.hero {
+  padding: 7rem 6rem 4rem;
+  border-bottom: 1px solid var(--rule);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6rem;
+  align-items: end;
+}
+.hero-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-bottom: 1.2rem;
+}
+.hero-title {
+  font-size: clamp(3rem, 6vw, 5rem);
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+.hero-title em {
+  font-style: italic;
+  color: var(--ink2);
+}
+.hero-desc {
+  font-size: 1.05rem;
+  font-weight: 300;
+  line-height: 1.75;
+  color: var(--ink2);
+  max-width: 38ch;
+  padding-bottom: 0.5rem;
+}
+.hero-desc .cn {
+  display: block;
+  margin-top: 0.6rem;
+  color: var(--ink3);
+  font-size: 0.95rem;
+}
+
+/* ═══════════════════════════════════════════
+   CHRONICLE WRAP
+═══════════════════════════════════════════ */
+.chronicle {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 5rem 3rem 2rem;
+}
+.section-eyebrow {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+.section-eyebrow span {
+  display: inline-block;
+  padding: 0 1rem;
+  background: var(--bg);
+  position: relative;
+  z-index: 1;
+}
+.section-eyebrow {
+  position: relative;
+}
+.section-eyebrow::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  top: 50%;
+  height: 1px;
+  background: var(--rule);
+  z-index: 0;
+}
+
+/* ═══════════════════════════════════════════
+   PRE-MEETING — two parallel lanes
+═══════════════════════════════════════════ */
+.pre-meeting {
+  display: grid;
+  grid-template-columns: 1fr 7rem 1fr;
+  position: relative;
+  padding-bottom: 2rem;   /* small breathing room before meeting bar cuts the lanes */
+}
+
+/* SVG covering the lane region. H stays straight, P keeps its subtle wave.
+   Both run to the bottom edge unbent — the meeting bar below severs them visually. */
+.lanes-svg {
+  position: absolute;
+  top: 4.5rem;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: visible;
+}
+
+/* lane headers */
+.lane-head {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--rule);
+  position: relative;
+  z-index: 1;
+  background: var(--bg);
+}
+.lane-head.h { text-align: right; padding-right: 1.5rem; color: var(--hs); }
+.lane-head.p { text-align: left; padding-left: 1.5rem; color: var(--ph); }
+.lane-head.axis { text-align: center; color: var(--ink3); }
+
+/* event cells */
+.row-h, .row-p {
+  padding: 1.4rem 0;
+  position: relative;
+  z-index: 1;
+}
+.row-h { text-align: right; padding-right: 2rem; }
+.row-p { text-align: left; padding-left: 2rem; }
+
+/* axis cell — year label + per-side dots on each line */
+.row-axis {
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  padding: 1.8rem 0 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  color: var(--ink3);
+}
+.row-axis .year-label {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+}
+.row-axis .dot {
+  position: absolute;
+  top: 1.55rem;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1px solid var(--ink);
+  background: var(--bg);
+  z-index: 2;
+}
+.row-axis .dot-h { left: 0; transform: translateX(-50%); }
+.row-axis .dot-p { right: 0; transform: translateX(50%); }
+
+/* event content */
+.event-title {
+  font-size: 1.2rem;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.5rem;
+  line-height: 1.3;
+}
+.event-title.hs-color { color: var(--hs); }
+.event-title.ph-color { color: var(--ph); }
+.event-text {
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.75;
+  color: var(--ink2);
+  max-width: 34ch;
+}
+.row-h .event-text { margin-left: auto; }
+.event-stack { display: flex; flex-direction: column; gap: 1.4rem; }
+
+/* ═══════════════════════════════════════════
+   MEETING BAR — sits below the converged lanes
+═══════════════════════════════════════════ */
+.meeting-bar {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--cp);
+  text-align: center;
+  padding: 1.2rem 1rem;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  background: var(--bg2);
+  position: relative;
+  z-index: 5;            /* sit above the lane SVG so it visually severs the lines */
+}
+.meeting-bar .star {
+  display: inline-block;
+  margin: 0 0.7rem;
+  color: var(--cp);
+}
+.meeting-bar .yr {
+  display: inline-block;
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  margin-right: 0.7rem;
+  color: var(--ink2);
+}
+
+/* ═══════════════════════════════════════════
+   POST-MEETING — shared chronicle timeline
+═══════════════════════════════════════════ */
+.post-meeting {
+  margin-top: 4rem;
+  position: relative;
+}
+.post-meeting::before {
+  content: '';
+  position: absolute;
+  left: 8rem;
+  top: 0; bottom: 0;
+  width: 1px;
+  background: var(--rule);
+}
+.shared-item {
+  display: grid;
+  grid-template-columns: 8rem 1fr;
+  gap: 2.5rem;
+  padding: 2.2rem 0;
+  border-bottom: 1px solid var(--rule);
+  position: relative;
+}
+.shared-item:last-child { border-bottom: none; }
+.shared-dot {
+  position: absolute;
+  left: calc(8rem - 4px);
+  top: 2.7rem;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1px solid var(--ink);
+  background: var(--bg);
+}
+/* solo event: hollow with gray border */
+.shared-item.solo .shared-dot {
+  border-color: var(--ink3);
+}
+/* world event: filled black, slightly larger */
+.shared-item.world .shared-dot {
+  background: var(--ink);
+  width: 11px; height: 11px;
+  left: calc(8rem - 5px);
+  top: 2.6rem;
+}
+.shared-year {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  color: var(--ink3);
+  text-align: right;
+  padding-top: 0.5rem;
+  padding-right: 1.2rem;
+}
+.shared-event {
+  font-size: 1.35rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.7rem;
+  line-height: 1.3;
+}
+.shared-item.solo .shared-event { color: var(--ink2); }
+.shared-item.world .shared-event {
+  font-style: italic;
+  letter-spacing: 0.04em;
+}
+.solo-tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.18em;
+  color: var(--ink3);
+  margin-right: 0.7rem;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--rule);
+  text-transform: uppercase;
+  vertical-align: 0.15rem;
+}
+.solo-tag.h { color: var(--hs); border-color: var(--hs); }
+.solo-tag.p { color: var(--ph); border-color: var(--ph); }
+.world-tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  color: var(--ink3);
+  margin-right: 0.7rem;
+  padding: 0.15rem 0.5rem;
+  background: var(--ink);
+  color: var(--bg);
+  text-transform: uppercase;
+  vertical-align: 0.15rem;
+}
+.shared-text {
+  font-size: 1.08rem;
+  font-weight: 400;
+  line-height: 1.85;
+  color: var(--ink2);
+  max-width: 62ch;
+}
+
+/* ═══════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════ */
+.foot {
+  border-top: 1px solid var(--rule);
+  padding: 2.5rem 6rem;
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4rem;
+}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE — stack on mobile
+═══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .global-nav { padding: 0 1.5rem; }
+  .hero {
+    padding: 5rem 1.5rem 3rem;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .hero-title { font-size: clamp(2.2rem, 9vw, 3.5rem); }
+  .chronicle { padding: 3rem 1.5rem 2rem; }
+
+  /* pre-meeting collapses to single column with side labels */
+  .pre-meeting { grid-template-columns: 1fr; padding-bottom: 0; }
+  .lane-head.h, .lane-head.p, .lane-head.axis { display: none; }
+  .lanes-svg { top: 0; }
+  .lanes-svg .path-p { display: none; }   /* hide P line on mobile (single lane only) */
+  .row-h, .row-p {
+    text-align: left;
+    padding: 1rem 0 1rem 2.5rem;
+  }
+  .row-h::before, .row-p::before {
+    content: attr(data-label);
+    display: block;
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+  .row-h::before { color: var(--hs); }
+  .row-p::before { color: var(--ph); }
+  .row-h .event-text, .row-p .event-text {
+    margin: 0;
+    max-width: none;
+  }
+  .row-axis {
+    padding: 1.5rem 0 0.5rem 2.5rem;
+    text-align: left;
+  }
+  .row-axis .year-label { padding: 0; }
+  .row-axis .dot-h,
+  .row-axis .dot-p {
+    position: absolute;
+    left: calc(1.2rem - 4px);
+    top: 1.7rem;
+    transform: none;
+    right: auto;
+  }
+
+  /* meeting bar slimmer on mobile */
+  .meeting-bar { padding: 1rem 0.8rem; font-size: 0.55rem; letter-spacing: 0.15em; }
+  .meeting-bar .star { margin: 0 0.4rem; }
+
+  /* post-meeting */
+  .post-meeting::before { left: 1.2rem; }
+  .shared-item {
+    grid-template-columns: 4rem 1fr;
+    gap: 1rem;
+    padding: 1.6rem 0;
+  }
+  .shared-dot { left: calc(1.2rem - 4px); }
+  .shared-item.world .shared-dot { left: calc(1.2rem - 5px); }
+  .shared-year { font-size: 0.58rem; padding-top: 0.3rem; }
+  .shared-event { font-size: 1.05rem; }
+
+  .foot { padding: 2rem 1.5rem; flex-direction: column; gap: 0.8rem; }
+}
+</style>
+</head>
+<body>
+
+<nav class="global-nav">
+  <div class="nav-logo">PH · CHRONICLE</div>
+  <a href="https://ischium002.github.io/archieve/" class="nav-back">← Archive</a>
+</nav>
+
+<section class="hero">
+  <div>
+    <div class="hero-label">A Timeline · 编年</div>
+    <h1 class="hero-title">Phorion <em>×</em> Hesperon</h1>
+  </div>
+  <div class="hero-desc">
+    Two paths, separately walked, then converging.
+    <span class="cn">两条线，分行 — 相遇 — 并行。</span>
+  </div>
+</section>
+
+<main class="chronicle">
+  <div class="section-eyebrow"><span>Before · 相遇之前</span></div>
+  <div id="pre-meeting" class="pre-meeting"></div>
+
+  <div id="meeting-bar" class="meeting-bar"></div>
+
+  <div class="section-eyebrow" style="margin-top: 4rem"><span>After · 相遇之后</span></div>
+  <div id="post-meeting" class="post-meeting"></div>
+</main>
+
+<footer class="foot">
+  <span>PH · Chronicle · v0.1</span>
+  <span>cream &amp; ink · serif &amp; mono</span>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════
+   DATA
+   pre-meeting: events on H lane or P lane
+   post-meeting: shared events; tag = 'solo' (one of them) or 'world' (background event)
+═══════════════════════════════════════════ */
+
+const PRE_EVENTS = [
+  { year: 'Y05', lane: 'h', title: 'PhD defense',
+    text: 'Hesperon publishes his thesis. The committee votes unanimously; he leaves the room before they finish announcing it.' },
+  { year: 'Y05', lane: 'p', title: 'first field op',
+    text: 'Phorion takes his first solo command. Returns with everyone alive. Refuses the medal.' },
+  { year: 'Y07', lane: 'h', title: 'first major paper',
+    text: 'A monograph on equilibrium, well received in narrow circles. He keeps the only handwritten draft.' },
+  { year: 'Y08', lane: 'p', title: 'promotion · operations chief',
+    text: 'Promoted out of fieldwork. He still goes out anyway, says it is for the data.' },
+  { year: 'Y10', lane: 'h', title: 'leon’s departure',
+    text: 'A teaching colleague leaves the city. Hesperon starts walking alone in the evenings; learns the route by heart within a month.' },
+  { year: 'Y11', lane: 'p', title: 'inter-faction council seat',
+    text: 'Quietly placed on the council. He does not announce it; people find out through the meeting minutes.' },
+];
+
+const MEETING = { year: 'Y12', label: 'Vesper Conference · first contact' };
+
+const POST_EVENTS = [
+  { year: 'Y12', title: 'coffee after panel',
+    text: 'Two steps shorter, the second time he walks toward him. Phorion notes it and says nothing.' },
+  { year: 'Y12', title: 'first collaboration',
+    text: 'A clean exchange — favors traded, no debts. Hesperon accepts because the terms are equal. Phorion arranges it that way on purpose.' },
+  { year: 'Y14', tag: 'world', title: 'War begins',
+    text: 'The eastern front opens. Both their lives reorder around it within the month.' },
+  { year: 'Y14', tag: 'solo', solo: 'H', title: 'facility incident',
+    text: 'Hesperon is injured at an off-site test — hides it. Phorion finds out within twelve minutes and force-evacuates him by night. Calls four people. Saves the data first.' },
+  { year: 'Y14', title: 'relationship confirmed',
+    text: 'In the early light after the rescue, neither of them needs to say it explicitly. He shakes the hand, holds it a fraction longer.' },
+  { year: 'Y15', title: 'shared apartment',
+    text: 'They move in. Hesperon brings two suitcases and a stack of books. Phorion clears half the closet, anticipates the door frames for the horns.' },
+];
+
+/* ═══════════════════════════════════════════
+   RENDER
+═══════════════════════════════════════════ */
+
+/* generate a gently-wavy SVG path for P's lane line.
+   Each half-period (40px) bulges to one side then back through center.
+   amp ~4px keeps it subtle — felt rather than seen. */
+function makeWavyPath(h) {
+  if (h < 1) return 'M 8 0';
+  const halfPeriod = 40;
+  const amp = 4;
+  let d = 'M 8 0';
+  let y = 0;
+  let dir = 1;
+  while (y < h) {
+    const nextY = Math.min(y + halfPeriod, h);
+    const midY = (y + nextY) / 2;
+    const cx = 8 + amp * dir;
+    d += ` Q ${cx} ${midY}, 8 ${nextY}`;
+    y = nextY;
+    dir *= -1;
+  }
+  return d;
+}
+
+function renderPreMeeting() {
+  const wrap = document.getElementById('pre-meeting');
+
+  let html = `
+    <div class="lane-head h">Hesperon</div>
+    <div class="lane-head axis">Years</div>
+    <div class="lane-head p">Phorion</div>
+  `;
+
+  const years = [...new Set(PRE_EVENTS.map(e => e.year))].sort();
+
+  for (const year of years) {
+    const hEvents = PRE_EVENTS.filter(e => e.year === year && e.lane === 'h');
+    const pEvents = PRE_EVENTS.filter(e => e.year === year && e.lane === 'p');
+
+    html += `
+      <div class="row-h" data-label="Hesperon">
+        ${hEvents.length ? `<div class="event-stack">${hEvents.map(e => `
+          <div>
+            <div class="event-title hs-color">${e.title}</div>
+            <div class="event-text">${e.text}</div>
+          </div>
+        `).join('')}</div>` : ''}
+      </div>
+      <div class="row-axis">
+        ${hEvents.length ? '<div class="dot dot-h"></div>' : ''}
+        <div class="year-label">${year}</div>
+        ${pEvents.length ? '<div class="dot dot-p"></div>' : ''}
+      </div>
+      <div class="row-p" data-label="Phorion">
+        ${pEvents.length ? `<div class="event-stack">${pEvents.map(e => `
+          <div>
+            <div class="event-title ph-color">${e.title}</div>
+            <div class="event-text">${e.text}</div>
+          </div>
+        `).join('')}</div>` : ''}
+      </div>
+    `;
+  }
+
+  wrap.innerHTML = html;
+
+  // measure layout, then inject one wide SVG drawing both lanes straight to the bottom edge
+  const remPx = parseFloat(getComputedStyle(document.documentElement).fontSize);
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  const headerOffset = isMobile ? 0 : 4.5 * remPx;
+  const w = wrap.offsetWidth;
+  const fullH = wrap.offsetHeight - headerOffset;
+  if (fullH <= 0) return;
+
+  const halfYearCol = 3.5 * remPx;
+  const centerX = w / 2;
+  const leftX  = isMobile ? 1.2 * remPx : centerX - halfYearCol;
+  const rightX = centerX + halfYearCol;
+  const rule = getCSS('--rule');
+
+  // H — a single vertical line, full height
+  const hPath = `M ${leftX} 0 L ${leftX} ${fullH}`;
+
+  // P — gentle wave the entire height, no convergence
+  let pPath = `M ${rightX} 0`;
+  const halfPeriod = 40, amp = 4;
+  let y = 0, dir = 1;
+  while (y < fullH) {
+    const nextY = Math.min(y + halfPeriod, fullH);
+    const midY = (y + nextY) / 2;
+    pPath += ` Q ${rightX + amp * dir} ${midY}, ${rightX} ${nextY}`;
+    y = nextY;
+    dir *= -1;
+  }
+
+  wrap.insertAdjacentHTML('beforeend', `
+    <svg class="lanes-svg" viewBox="0 0 ${w} ${fullH}" preserveAspectRatio="none" aria-hidden="true">
+      <path class="path-h" d="${hPath}" stroke="${rule}" stroke-width="1" fill="none" vector-effect="non-scaling-stroke"/>
+      <path class="path-p" d="${pPath}" stroke="${rule}" stroke-width="1" fill="none" vector-effect="non-scaling-stroke"/>
+    </svg>
+  `);
+}
+
+function renderMeetingBar() {
+  const wrap = document.getElementById('meeting-bar');
+  wrap.innerHTML = `
+    <span class="star">✦</span>
+    <span class="yr">${MEETING.year}</span>${MEETING.label}
+    <span class="star">✦</span>
+  `;
+}
+
+function renderPostMeeting() {
+  const wrap = document.getElementById('post-meeting');
+  let html = '';
+  for (const e of POST_EVENTS) {
+    const klass = e.tag ? `shared-item ${e.tag}` : 'shared-item';
+    let prefix = '';
+    if (e.tag === 'solo') {
+      const sc = e.solo === 'H' ? 'h' : 'p';
+      prefix = `<span class="solo-tag ${sc}">${e.solo} solo</span>`;
+    } else if (e.tag === 'world') {
+      prefix = `<span class="world-tag">world</span>`;
+    }
+    html += `
+      <div class="${klass}">
+        <div class="shared-dot"></div>
+        <div class="shared-year">${e.year}</div>
+        <div>
+          <div class="shared-event">${prefix}${e.title}</div>
+          <div class="shared-text">${e.text}</div>
+        </div>
+      </div>
+    `;
+  }
+  wrap.innerHTML = html;
+}
+
+function getCSS(varName) {
+  return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+}
+
+renderPreMeeting();
+renderMeetingBar();
+renderPostMeeting();
+
+/* re-render lane SVG on resize: width and height change with viewport, so paths must re-fit */
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(renderPreMeeting, 150);
+});
+</script>
+</body>
+</html>

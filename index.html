@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>PH Chronicle</title>
+<link rel="icon" type="image/png" href="https://res.cloudinary.com/dp5ayfo4z/image/upload/v1775668521/A5FB6ECA8E02B834821907C7618741E5_uzf777.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F5F0E8;
+  --ink: #2C2520;
+  --ink-mid: #5C534A;
+  --ink-light: #8A7F73;
+  --ink-faint: #C4BAB0;
+  --gold: #C9A96E;
+  --line: #9E8B72;
+  --p: #4D6356;
+  --h: #5D6D7E;
+  --mono: 'DM Mono', 'Courier New', monospace;
+}
+
+/* ──────── GLOBAL NAV ──────── */
+.global-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 48px;
+  height: 56px;
+  background: var(--bg);
+  border-bottom: 1px solid rgba(196, 186, 176, 0.45);
+}
+.nav-logo {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--ink-mid);
+}
+.nav-back {
+  font-family: var(--mono);
+  font-size: 9.6px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 2px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.nav-back:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  font-family: 'Cormorant Garamond', 'Palatino Linotype', Palatino, Georgia, serif;
+  color: var(--ink);
+  user-select: none;
+  overflow: hidden;
+}
+
+body {
+  background:
+    radial-gradient(ellipse at 15% 40%, rgba(201,169,110,0.07), transparent 55%),
+    radial-gradient(ellipse at 85% 60%, rgba(93,109,126,0.04), transparent 45%),
+    var(--bg);
+}
+
+html.portrait-mode {
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: auto;
+}
+body.portrait-mode {
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: auto;
+  min-height: 100vh;
+}
+
+.mist {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  mix-blend-mode: multiply;
+  opacity: 0.35;
+}
+
+/* ──────── TIMELINE VIEW ──────── */
+.timeline-root {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+  cursor: grab;
+  touch-action: none;
+}
+.timeline-root.dragging { cursor: grabbing; }
+
+.canvas {
+  position: absolute;
+  top: 0; left: 0;
+  height: 100%;
+  width: 6000px;
+  will-change: transform;
+}
+
+.title-block {
+  position: absolute;
+  left: 80px; top: 50%;
+  transform: translateY(-55%);
+  width: 380px;
+  z-index: 2;
+}
+.title-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  margin-bottom: 12px;
+}
+.title-name {
+  font-size: 36px;
+  font-weight: 300;
+  letter-spacing: 0.03em;
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+.title-name.indent {
+  padding-left: 40px;
+  margin-bottom: 20px;
+}
+.title-desc {
+  font-size: 14px;
+  font-style: italic;
+  color: var(--ink-light);
+  font-weight: 300;
+  line-height: 1.6;
+}
+.title-desc-cn {
+  font-size: 13px;
+  color: var(--ink-faint);
+  margin-top: 8px;
+  font-weight: 300;
+}
+.title-hint {
+  margin-top: 28px;
+  font-size: 12px;
+  color: var(--ink-faint);
+  letter-spacing: 0.06em;
+}
+
+.canvas-svg {
+  position: absolute;
+  top: 0; left: 0;
+  pointer-events: none;
+}
+
+.node-label {
+  position: absolute;
+  transform: translateX(-50%);
+  text-align: center;
+  width: 155px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  z-index: 1;
+}
+.node-label:hover { opacity: 0.6; }
+.node-label-meta {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  align-items: baseline;
+  margin-bottom: 3px;
+}
+.node-label-year {
+  font-size: 11px;
+  font-style: italic;
+  color: var(--ink-light);
+  letter-spacing: 0.05em;
+}
+.node-label-who {
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 500;
+}
+.node-label-who.p { color: var(--p); }
+.node-label-who.h { color: var(--h); }
+.node-label-title {
+  font-size: 13.5px;
+  font-weight: 400;
+  color: var(--ink-mid);
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+}
+.node-label-title.special {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.zoom-out {
+  position: absolute;
+  right: 80px;
+  top: 50%;
+  transform: translateY(-50%);
+  text-align: right;
+  cursor: pointer;
+  opacity: 0.3;
+  transition: opacity 0.5s;
+  z-index: 2;
+}
+.zoom-out.active { opacity: 1; }
+.zoom-out-label {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--ink-light);
+  font-style: italic;
+  margin-bottom: 6px;
+}
+.zoom-out-arrow {
+  font-size: 20px;
+  color: var(--gold);
+  line-height: 1;
+}
+
+.progress-bar {
+  position: absolute;
+  bottom: 16px;
+  left: 10%;
+  width: 80%;
+  height: 1px;
+  background: var(--ink-faint);
+  opacity: 0.2;
+  border-radius: 1px;
+  z-index: 2;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 1px;
+  background: var(--line);
+  opacity: 0.6;
+  width: 0%;
+}
+
+/* ──────── PORTRAIT VIEW ──────── */
+.portrait-root {
+  width: 100vw;
+  min-height: 100vh;
+  padding: 96px 20px 80px;
+  position: relative;
+  z-index: 1;
+  background: var(--bg);
+}
+
+.portrait-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 520px;
+  margin: 0 auto 48px;
+  padding: 0 16px;
+  gap: 18px;
+  position: relative;
+  z-index: 1;
+}
+.portrait-divider::before,
+.portrait-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--ink-faint);
+  opacity: 0.55;
+}
+.portrait-divider .mark {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--gold);
+  flex-shrink: 0;
+}
+.portrait-bg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+.portrait-hero-svg {
+  display: block;
+  width: 65%;
+  max-width: 260px;
+  margin: 0 auto 28px;
+  position: relative;
+  z-index: 1;
+}
+.portrait-title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+  position: relative;
+  z-index: 1;
+}
+.portrait-subtitle {
+  text-align: center;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--ink-light);
+  margin-bottom: 56px;
+  font-weight: 300;
+  position: relative;
+  z-index: 1;
+}
+.portrait-list {
+  max-width: 520px;
+  margin: 0 auto;
+  position: relative;
+  padding-bottom: 40px;
+  z-index: 1;
+}
+.portrait-centerline {
+  position: absolute;
+  left: 50%;
+  top: 0; bottom: 0;
+  width: 1px;
+  transform: translateX(-0.5px);
+  background: linear-gradient(to bottom, transparent, var(--ink-faint) 2%, var(--ink-faint) 98%, transparent);
+}
+.portrait-cols {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  padding: 0 12px;
+}
+.portrait-col-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-weight: 500;
+  width: 45%;
+}
+.portrait-col-label.p {
+  color: var(--p);
+  text-align: right;
+  padding-right: 24px;
+}
+.portrait-col-label.h {
+  color: var(--h);
+  text-align: left;
+  padding-left: 24px;
+}
+
+.event-row {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  min-height: 70px;
+  margin-bottom: 28px;
+}
+.event-row.shared {
+  flex-direction: column;
+  align-items: center;
+}
+
+.event-side {
+  width: calc(50% - 16px);
+  padding-right: 20px;
+  text-align: right;
+}
+.event-side.right {
+  text-align: left;
+  padding-right: 0;
+  padding-left: 20px;
+}
+.event-side.show { opacity: 1; visibility: visible; }
+.event-side.hide { opacity: 0; visibility: hidden; }
+
+.event-dot-wrap {
+  width: 32px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 5px;
+  position: relative;
+}
+.event-dot {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--line);
+  position: relative;
+  z-index: 2;
+}
+.event-dot.special {
+  width: 7px; height: 7px;
+  background: var(--gold);
+}
+.event-pulse {
+  position: absolute;
+  top: 1.5px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--gold);
+  opacity: 0.35;
+  animation: pulse 3s ease infinite;
+}
+
+.event-shared-text {
+  max-width: 380px;
+  width: 100%;
+  padding: 10px 24px 6px;
+  text-align: center;
+  background: var(--bg);
+  position: relative;
+  z-index: 1;
+}
+.event-shared-meta {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  align-items: baseline;
+  margin-bottom: 2px;
+}
+.event-shared-x {
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-mid);
+  font-weight: 400;
+}
+.event-meta-row {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  margin-bottom: 2px;
+}
+.event-side.left .event-meta-row { justify-content: flex-end; }
+.event-year {
+  font-size: 11px;
+  font-style: italic;
+  color: var(--ink-light);
+  letter-spacing: 0.05em;
+  font-weight: 300;
+}
+.event-title {
+  font-size: 15px;
+  font-weight: 400;
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+.event-title.special {
+  font-size: 17px;
+  font-weight: 500;
+}
+.event-body {
+  font-size: 13px;
+  color: var(--ink-mid);
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+/* Same-day inline note: no dot, bg masks the centerline behind it. */
+.event-row.inline-note {
+  display: block;
+  min-height: 0;
+  max-width: 380px;
+  margin: 6px auto 14px;
+  padding: 12px 28px;
+  background: var(--bg);
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+.event-row.inline-note .event-meta-row {
+  justify-content: center;
+  margin-bottom: 4px;
+}
+.event-row.inline-note .event-title,
+.event-row.inline-note .event-title.special {
+  font-size: 14px;
+  font-style: italic;
+  color: var(--ink-mid);
+  font-weight: 400;
+  margin-bottom: 6px;
+}
+.event-row.inline-note .event-body {
+  font-size: 12px;
+  color: var(--ink-light);
+  font-style: italic;
+  line-height: 1.65;
+}
+
+/* 竖屏底部的 storylines 入口（竖屏没有 multiline 视图，从这里进各条线） */
+.portrait-stories {
+  max-width: 520px;
+  margin: 24px auto 0;
+  padding: 0 12px;
+  position: relative;
+  z-index: 1;
+  scroll-margin-top: 72px;
+}
+.portrait-stories-title {
+  text-align: center;
+  font-size: 13px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  margin-bottom: 10px;
+}
+.portrait-story {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 15px 4px;
+  border-bottom: 1px solid rgba(196, 186, 176, 0.35);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.portrait-story-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sc);
+  flex: none;
+}
+.portrait-story-main {
+  flex: 1;
+  min-width: 0;
+}
+.portrait-story-name {
+  display: block;
+  font-size: 16px;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+}
+.portrait-story-desc {
+  display: block;
+  font-size: 12px;
+  color: var(--ink-light);
+  font-weight: 300;
+  margin-top: 2px;
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.portrait-story-arrow {
+  font-size: 14px;
+  color: var(--sc);
+  flex: none;
+  opacity: 0.7;
+}
+
+/* ──────── MULTILINE VIEW ──────── */
+.multi-root {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  background:
+    radial-gradient(ellipse at 30% 50%, rgba(201,169,110,0.06), transparent 50%),
+    radial-gradient(ellipse at 70% 40%, rgba(93,109,126,0.04), transparent 45%),
+    var(--bg);
+  animation: fadeIn 0.4s ease;
+}
+.multi-back {
+  position: absolute;
+  top: 84px;
+  left: 32px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--ink-light);
+  letter-spacing: 0.06em;
+  font-style: italic;
+  transition: color 0.2s;
+  z-index: 10;
+}
+.multi-back:hover { color: var(--ink); }
+.multi-eyebrow {
+  position: absolute;
+  top: 84px;
+  width: 100%;
+  text-align: center;
+  font-size: 13px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  font-weight: 400;
+}
+.multi-svg {
+  position: absolute;
+  top: 0; left: 0;
+}
+.story-hit { cursor: pointer; }
+.story-path { transition: opacity 0.3s, filter 0.3s; }
+.story-path:hover { filter: drop-shadow(0 0 4px currentColor); }
+
+.tooltip {
+  position: fixed;
+  background: rgba(44,37,32,0.88);
+  color: #F5F0E8;
+  padding: 8px 14px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-style: italic;
+  pointer-events: none;
+  max-width: 280px;
+  line-height: 1.5;
+  font-weight: 300;
+  z-index: 200;
+  animation: fadeIn 0.15s ease;
+}
+
+/* ──────── DETAIL OVERLAY ──────── */
+.detail-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(94, 84, 74, 0.22);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.25s ease;
+  cursor: pointer;
+}
+.detail-card {
+  max-width: 460px;
+  padding: 48px 44px;
+  position: relative;
+  background: #FBF7EE;
+  border-radius: 3px;
+  box-shadow:
+    0 1px 2px rgba(44,37,32,0.04),
+    0 12px 32px rgba(44,37,32,0.10),
+    0 36px 96px rgba(44,37,32,0.08);
+  animation: scaleUp 0.3s cubic-bezier(0.22,1,0.36,1);
+  cursor: default;
+}
+.detail-meta {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+.detail-meta-year {
+  font-size: 13px;
+  font-style: italic;
+  color: var(--ink-light);
+  letter-spacing: 0.06em;
+}
+.detail-meta-who {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+.detail-meta-who.p { color: var(--p); }
+.detail-meta-who.h { color: var(--h); }
+.detail-title {
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  margin-bottom: 18px;
+}
+.detail-body {
+  font-size: 16px;
+  line-height: 1.85;
+  color: var(--ink-mid);
+  font-weight: 400;
+}
+.detail-close {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  cursor: pointer;
+  font-size: 22px;
+  color: var(--ink-faint);
+  transition: color 0.2s;
+  line-height: 1;
+}
+.detail-close:hover { color: var(--ink); }
+
+/* ──────── ANIMATIONS ──────── */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+@keyframes scaleUp { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+@keyframes scaleDown { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.96); } }
+@keyframes drawLine { from { stroke-dashoffset: 3000; } to { stroke-dashoffset: 0; } }
+@keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.7; } }
+
+.detail-overlay.closing { animation: fadeOut 0.22s ease forwards; cursor: default; }
+.detail-card.closing { animation: scaleDown 0.22s cubic-bezier(0.4,0,0.2,1) forwards; }
+</style>
+</head>
+<body>
+<nav class="global-nav">
+  <div class="nav-logo">PH · CHRONICLE</div>
+  <a href="https://ischium002.github.io/archieve/" class="nav-back">← ARCHIVE</a>
+</nav>
+<div id="app"></div>
+<script>
+'use strict';
+
+const C = {
+  bg: '#F5F0E8',
+  ink: '#2C2520',
+  inkMid: '#5C534A',
+  inkLight: '#8A7F73',
+  inkFaint: '#C4BAB0',
+  gold: '#C9A96E',
+  line: '#9E8B72',
+  P: '#4D6356',
+  H: '#5D6D7E',
+};
+
+// Horizontal layout config — events placed by (y, m, d) along a time axis.
+// Gaps are clamped to [minGap, maxGap] years: long voids compress, dense
+// clusters spread out so labels have breathing room.
+const LAYOUT = {
+  pxPerYear: 350,
+  minGap: 0.4,
+  maxGap: 1.2,
+  leftPad: 500,
+  rightPad: 350,
+};
+
+const EVENTS = [
+  { id:'academy', y:1009, m:9, d:1, dy:-24, year:'1009.9', who:'H', title:'Enters the Academy',
+    body:'Leaves the demon homelands for the human-fusion academic system. Fe recalibrates in a world where no one has horns.', above:true },
+  { id:'university', y:1010, m:9, d:1, dy:24, year:'1010.9', who:'P', title:'Enters University',
+    body:'Eighteen. Already knows how people work. Does not yet know what to do with it.', above:false },
+  { id:'leon', y:1013, m:9, d:1, dy:-20, year:'1013.9', who:'H', title:'Leon',
+    body:'A classmate who never flinches at sharp edges. For the first time, the filter can stay off. Not a match — a rest stop.', above:true },
+  { id:'system', y:1014, m:10, d:1, dy:22, year:'1014.10', who:'P', title:'Enters the System',
+    body:'Twenty-two, clean suit, no style yet. The smile already has two layers.', above:false },
+  { id:'pillars', y:1017, m:6, d:1, dy:26, year:'1017.6', who:'P', title:'Four Pillars',
+    body:'Trust betrayed, debts weaponized, incompetence protected, loyalty sold. Four lessons, all defensive. The network begins to form.', above:false },
+  { id:'phd', y:1019, m:6, d:1, dy:-28, year:'1019.6', who:'H', title:'PhD Defense',
+    body:'The committee votes unanimously. He leaves the room before they finish announcing it. The only handwritten draft stays in his desk.', above:true },
+  { id:'war-begins', y:1020, m:2, d:1, dy:0, year:'1020.2', who:'×', title:'War Begins',
+    body:'The eastern front opens. A researcher is pulled from his postdoc. A political operator moves to the command car. Both lives reorder within the month.', above:true, special:true, specialMajor:true },
+  { id:'operative', y:1020, m:6, d:1, dy:20, year:'1020.6', who:'P', title:'Political Operative',
+    body:'No longer adapting to the system. Using it. The sharpness sits closer to the surface now. Tea habit acquired.', above:false },
+  { id:'glass-cannon', y:1021, m:3, d:1, dy:-26, year:'1021.3', who:'H', title:'Glass Cannon',
+    body:'Seven seconds. No visual effects. The wall fractures along paths only he calculated. The recording officer forgets to write.', above:true },
+  { id:'contact', y:1022, m:9, d:1, dy:0, year:'1022.9', who:'×', title:'First Contact',
+    body:'A meeting P arranged to not look arranged. Six steps across the room. Not attraction — recognition.', above:true, special:true },
+  { id:'record-shop', y:1022, m:10, d:1, dy:-16, year:'1022.10', who:'×', title:'The Record Shop',
+    body:'No agenda, no others, no rules of engagement. He talks about music longer than he meant to. The door opens a crack. P notices.', above:true },
+  { id:'m-recruited', y:1023, m:4, d:1, dy:22, year:'1023.4', who:'P', title:'M Recruited',
+    body:"An expelled student's anonymous post happens to detonate near P's political enemy. She signs a contract without reading the fine print. Fifty furious messages follow. A tradition honored.", above:false },
+  { id:'facility', y:1024, m:10, d:1, dy:-22, year:'1024.10', who:'H', title:'Facility Incident',
+    body:'Two fractured ribs, pleural effusion, magic depletion. He tells the rescue team he is fine. Phorion finds out in twelve minutes, calls four people, saves the data first. By morning: two sentences, one conclusion, a hand held a fraction too long.', above:true },
+  { id:'confirmed', y:1024, m:10, d:1, dy:22, year:'The same day', who:'×', title:'Relationship Confirmed',
+    body:'One night of arithmetic. Every model says the loss is survivable. His hands shake anyway. In the morning: two sentences, one conclusion, a hand held a fraction too long.', above:false, special:true, portraitInline:true },
+  { id:'kiss', y:1024, m:12, d:1, dy:-14, year:'1024.12', who:'×', title:'First Kiss',
+    body:"P's apartment, after dinner, on the sofa. He closes the distance and pauses. The last window. H does not step back.", above:true },
+  { id:'war-ends', y:1025, m:4, d:1, dy:0, year:'1025.4', who:'×', title:'War Ends',
+    body:'P takes a quiet office. H gets a library desk and a lab with no deadlines. The policy that funds the lab has no traceable author.', above:false, special:true, specialMajor:true },
+  { id:'apartment', y:1026, m:1, d:1, dy:14, year:'1026.1', who:'×', title:'Shared Apartment',
+    body:'A dormitory renovation that never ends. Two suitcases, a stack of books, and door frames adjusted for horns. The closet was already half empty.', above:false },
+  { id:'now', y:1027, m:6, d:1, dy:-10, year:'1027.6', who:'×', title:'Now',
+    body:'One year of cohabitation. Curtains replaced, mattress upgraded, temperature calibrated to the half-degree. Neither has mentioned it.', above:true },
+];
+
+const STORIES = [
+  { id:'lich',   name:'巫妖PARO', color:'#6B9B7F', yR:0.22, seed:1.2, amp:16, w:2.5, desc:'不死的行商与他的巫妖，数个世纪的马车、茶杯与公路', url:'stories/lich.html' },
+  { id:'hp',     name:'HP PARO',   color:'#9B6B7F', yR:0.34, seed:3.7, amp:12, w:1.8, desc:'七年的城堡，从分院帽落下的那一刻开始', url:'stories/hp.html' },
+  { id:'paro-a', name:'PARO · 占位一', color:'#6B8F9B', yR:0.46, seed:2.6, amp:13, w:2.0, desc:'占位：这根线的一句话简介，待填', url:'stories/paro-a.html' },
+  { id:'main',   name:'Chronicle', color:'#8B7355', yR:0.58, seed:0.5, amp:20, w:2.2, desc:'主线，非主流学者和政客', active:true, url:'stories/chronicle.html' },
+  { id:'paro-b', name:'PARO · 占位二', color:'#9B8B6B', yR:0.70, seed:4.4, amp:15, w:1.6, desc:'占位：这根线的一句话简介，待填', url:'stories/paro-b.html' },
+  { id:'if',     name:'IF Lines',  color:'#7E7EA8', yR:0.82, seed:5.1, amp:14, w:1.5, desc:'失忆、身体交换、政治联姻、宿敌——所有如果的集合', url:'stories/if.html' },
+];
+
+function layoutEvents(events) {
+  const t = e => e.y + (e.m - 1) / 12 + ((e.d || 1) - 1) / 365;
+  events.sort((a, b) => t(a) - t(b));
+  let cursor = LAYOUT.leftPad;
+  events.forEach((e, i) => {
+    if (i === 0) {
+      e.x = cursor;
+      return;
+    }
+    const realGap = t(e) - t(events[i - 1]);
+    const displayGap = realGap < 0.001
+      ? 0
+      : Math.min(Math.max(realGap, LAYOUT.minGap), LAYOUT.maxGap);
+    cursor += displayGap * LAYOUT.pxPerYear;
+    e.x = cursor;
+  });
+  return cursor + LAYOUT.rightPad;
+}
+
+let CANVAS_W = layoutEvents(EVENTS);
+
+const state = {
+  view: 'timeline',
+  scrollX: 0,
+  vw: window.innerWidth,
+  vh: window.innerHeight,
+  portrait: false,
+  detail: null,
+  drag: { down:false, startX:0, startScroll:0, moved:false },
+  nearEnd: false,
+};
+
+const app = document.getElementById('app');
+
+// ──────── UTILS ────────
+function smooth(pts) {
+  if (pts.length < 2) return '';
+  let d = `M${pts[0].x},${pts[0].y}`;
+  for (let i = 1; i < pts.length; i++) {
+    const p = pts[i-1], c = pts[i];
+    const mx = (p.x + c.x) / 2;
+    d += ` C${mx},${p.y} ${mx},${c.y} ${c.x},${c.y}`;
+  }
+  return d;
+}
+
+function makeWave(baseY, width, seed, amp, weight) {
+  const pts = [];
+  const n = Math.ceil(width / 20);
+  for (let i = 0; i <= n; i++) {
+    const x = (i / n) * width;
+    const y = baseY
+      + Math.sin(x * 0.004 * weight + seed) * amp
+      + Math.sin(x * 0.0018 * weight + seed * 2.3) * amp * 0.5
+      + Math.sin(x * 0.0009 * weight + seed * 0.7) * amp * 0.3;
+    pts.push({ x, y });
+  }
+  return smooth(pts);
+}
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ──────── RENDER FRAGMENTS ────────
+function renderMist() {
+  return `<svg class="mist" aria-hidden="true">
+    <defs>
+      <filter id="mist">
+        <feTurbulence type="fractalNoise" baseFrequency="0.012 0.008" numOctaves="4" seed="3" stitchTiles="stitch" result="noise"/>
+        <feColorMatrix type="saturate" values="0" in="noise" result="grey"/>
+        <feComponentTransfer in="grey" result="soft"><feFuncA type="linear" slope="0.5" intercept="0"/></feComponentTransfer>
+        <feGaussianBlur in="soft" stdDeviation="1.5"/>
+      </filter>
+    </defs>
+    <rect width="100%" height="100%" filter="url(#mist)" fill="#C4BAB0"/>
+  </svg>`;
+}
+
+function renderDetail() {
+  const e = state.detail;
+  if (!e) return '';
+  const whoClass = e.who === 'P' ? 'p' : 'h';
+  const whoLabel = e.who === 'P' ? 'phorion' : 'hesperon';
+  return `<div class="detail-overlay" id="detail-overlay">
+    <div class="detail-card" id="detail-card">
+      <div class="detail-meta">
+        ${e.year ? `<span class="detail-meta-year">${esc(e.year)}</span>` : ''}
+        ${e.who !== '×' ? `<span class="detail-meta-who ${whoClass}">${whoLabel}</span>` : ''}
+      </div>
+      <h2 class="detail-title">${esc(e.title)}</h2>
+      <p class="detail-body">${esc(e.body)}</p>
+      <div class="detail-close" id="detail-close">×</div>
+    </div>
+  </div>`;
+}
+
+function renderTimeline() {
+  const { vh, scrollX, vw } = state;
+  const CY = vh * 0.48;
+
+  // Group events by x — same-day events form a "cluster" sharing one dot.
+  const byX = {};
+  EVENTS.forEach(e => { (byX[e.x] = byX[e.x] || []).push(e); });
+  const clusters = Object.values(byX).sort((a, b) => a[0].x - b[0].x);
+
+  const linePoints = [
+    { x: LAYOUT.leftPad - 250, y: CY + 5 },
+    ...clusters.map(c => ({ x: c[0].x, y: c.length > 1 ? CY : CY + c[0].dy })),
+    { x: CANVAS_W - 290, y: CY },
+  ];
+  const linePath = smooth(linePoints);
+
+  const blobs = [
+    [800, CY-60, 220, 140, 'wg2'],
+    [2000, CY+80, 280, 120, 'wg3'],
+    [3300, CY, 300, 180, 'wg1'],
+    [4300, CY+40, 250, 150, 'wg1'],
+    [5000, CY-30, 260, 160, 'wg2'],
+    [1400, CY+120, 180, 90, 'wg3'],
+    [3800, CY-90, 200, 110, 'wg2'],
+    [5500, CY+60, 240, 130, 'wg1'],
+  ];
+
+  const nodeMarks = EVENTS.map(e => {
+    const cluster = byX[e.x];
+    const isCluster = cluster.length > 1;
+    const isAnchor = cluster[0] === e;
+    const ny = CY + e.dy;
+    const dotY = isCluster ? CY : ny;
+    const stemStart = e.above ? dotY - 4 : dotY + 4;
+    const stemEnd = e.above ? ny - 48 : ny + 48;
+
+    let dotHtml = '';
+    if (isAnchor) {
+      const hasMajor = cluster.some(c => c.specialMajor);
+      const hasSpecial = cluster.some(c => c.special);
+      const r = hasSpecial ? 5 : 3;
+      dotHtml = `${hasMajor ? `<circle cx="${e.x}" cy="${dotY}" r="22" fill="none" stroke="${C.gold}" stroke-width="0.4" opacity="0.28" style="animation: pulse 4.5s ease infinite 0.6s"/>` : ''}
+        ${hasSpecial ? `<circle cx="${e.x}" cy="${dotY}" r="12" fill="none" stroke="${C.gold}" stroke-width="0.5" opacity="0.4" style="animation: pulse 3s ease infinite"/>` : ''}
+        <circle cx="${e.x}" cy="${dotY}" r="${r}" fill="${hasSpecial ? C.gold : C.line}" stroke="${C.bg}" stroke-width="1.5"/>`;
+    }
+
+    return `<line x1="${e.x}" y1="${stemStart}" x2="${e.x}" y2="${stemEnd}"
+        stroke="${C.inkFaint}" stroke-width="0.6" opacity="0.5"/>${dotHtml}`;
+  }).join('');
+
+  const labels = EVENTS.map(e => {
+    const ny = CY + e.dy;
+    const top = e.above ? ny - 95 : ny + 55;
+    const whoClass = e.who === 'P' ? 'p' : e.who === 'H' ? 'h' : '';
+    const whoLabel = e.who === 'P' ? 'phorion' : e.who === 'H' ? 'hesperon' : '';
+    return `<div class="node-label" data-event-id="${e.id}" style="left:${e.x}px; top:${top}px;">
+      <div class="node-label-meta">
+        ${e.year ? `<span class="node-label-year">${esc(e.year)}</span>` : ''}
+        ${e.who !== '×' ? `<span class="node-label-who ${whoClass}">${whoLabel}</span>` : ''}
+      </div>
+      <div class="node-label-title${e.special ? ' special' : ''}">${esc(e.title)}</div>
+    </div>`;
+  }).join('');
+
+  const progressPct = (scrollX / Math.max(1, CANVAS_W - vw)) * 100;
+
+  return `${renderMist()}
+    <div class="timeline-root" id="timeline-root">
+      <div class="canvas" id="canvas" style="width:${CANVAS_W}px; transform: translateX(${-scrollX}px);">
+        <div class="title-block">
+          <div class="title-eyebrow">PH · Chronicle</div>
+          <h1 class="title-name">Phorion</h1>
+          <h1 class="title-name indent">× Hesperon</h1>
+          <p class="title-desc">Two paths, separately walked, then converging</p>
+          <p class="title-desc-cn">两条路线，分开——相遇——并行。</p>
+          <div class="title-hint">drag or scroll →</div>
+        </div>
+
+        <svg class="canvas-svg" width="${CANVAS_W}" height="${vh}">
+          <defs>
+            <filter id="wash">
+              <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" seed="7" result="warp"/>
+              <feDisplacementMap in="SourceGraphic" in2="warp" scale="45" xChannelSelector="R" yChannelSelector="G"/>
+              <feGaussianBlur stdDeviation="18"/>
+            </filter>
+            <radialGradient id="wg1" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="${C.gold}" stop-opacity="0.07"/>
+              <stop offset="70%" stop-color="${C.gold}" stop-opacity="0.03"/>
+              <stop offset="100%" stop-color="${C.gold}" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="wg2" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#8A8B82" stop-opacity="0.04"/>
+              <stop offset="60%" stop-color="#8A8B82" stop-opacity="0.018"/>
+              <stop offset="100%" stop-color="#8A8B82" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="wg3" cx="40%" cy="60%" r="50%">
+              <stop offset="0%" stop-color="#7A7A68" stop-opacity="0.03"/>
+              <stop offset="65%" stop-color="#7A7A68" stop-opacity="0.012"/>
+              <stop offset="100%" stop-color="#7A7A68" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          ${blobs.map(b => `<ellipse cx="${b[0]}" cy="${b[1]}" rx="${b[2]}" ry="${b[3]}" fill="url(#${b[4]})" filter="url(#wash)"/>`).join('')}
+          <path d="${linePath}" stroke="${C.gold}" fill="none" stroke-width="8" opacity="0.06"/>
+          <path d="${linePath}" stroke="${C.line}" fill="none" stroke-width="1.8" stroke-linecap="round"/>
+          ${nodeMarks}
+        </svg>
+
+        ${labels}
+
+        <div class="zoom-out${state.nearEnd ? ' active' : ''}" id="zoom-out">
+          <div class="zoom-out-label">all storylines</div>
+          <div class="zoom-out-arrow">→</div>
+        </div>
+      </div>
+
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width: ${progressPct}%;"></div>
+      </div>
+    </div>
+    ${renderDetail()}`;
+}
+
+function renderPortrait() {
+  const rows = EVENTS.map((e, i) => {
+    const isShared = e.who === '×';
+    const onLeft = e.who === 'P';
+    const dotHtml = `<div class="event-dot-wrap">
+        <div class="event-dot${e.special ? ' special' : ''}"></div>
+        ${e.special ? '<div class="event-pulse"></div>' : ''}
+      </div>`;
+    const titleHtml = `<div class="event-title${e.special ? ' special' : ''}">${esc(e.title)}</div>`;
+    const bodyHtml = `<div class="event-body">${esc(e.body)}</div>`;
+    const yearHtml = e.year ? `<span class="event-year">${esc(e.year)}</span>` : '';
+
+    if (e.portraitInline) {
+      return `<div class="event-row inline-note" data-event-id="${e.id}" style="animation: fadeIn 0.4s ease ${(i * 0.04).toFixed(2)}s both;">
+        <div class="event-meta-row">
+          ${yearHtml}
+          <span class="event-shared-x">×</span>
+        </div>
+        ${titleHtml}
+        ${bodyHtml}
+      </div>`;
+    }
+
+    if (isShared) {
+      return `<div class="event-row shared" data-event-id="${e.id}" style="animation: fadeIn 0.4s ease ${(i * 0.04).toFixed(2)}s both;">
+        ${dotHtml}
+        <div class="event-shared-text">
+          <div class="event-shared-meta">
+            ${yearHtml}
+            <span class="event-shared-x">×</span>
+          </div>
+          ${titleHtml}
+          ${bodyHtml}
+        </div>
+      </div>`;
+    }
+
+    return `<div class="event-row" data-event-id="${e.id}" style="animation: fadeIn 0.4s ease ${(i * 0.04).toFixed(2)}s both;">
+      <div class="event-side left ${onLeft ? 'show' : 'hide'}">
+        <div class="event-meta-row">${yearHtml}</div>
+        ${titleHtml}
+        ${bodyHtml}
+      </div>
+      ${dotHtml}
+      <div class="event-side right ${!onLeft ? 'show' : 'hide'}">
+        <div class="event-meta-row">${yearHtml}</div>
+        ${titleHtml}
+        ${bodyHtml}
+      </div>
+    </div>`;
+  }).join('');
+
+  return `${renderMist()}
+    <div class="portrait-root">
+      <svg class="portrait-bg">
+        <defs>
+          <filter id="pwash">
+            <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="3" seed="5" result="w"/>
+            <feDisplacementMap in="SourceGraphic" in2="w" scale="35" xChannelSelector="R" yChannelSelector="G"/>
+            <feGaussianBlur stdDeviation="22"/>
+          </filter>
+          <radialGradient id="pg1" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="${C.gold}" stop-opacity="0.06"/>
+            <stop offset="100%" stop-color="${C.gold}" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="pg2" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#8A8B82" stop-opacity="0.035"/>
+            <stop offset="100%" stop-color="#8A8B82" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <ellipse cx="30%" cy="15%" rx="22%" ry="12%" fill="url(#pg2)" filter="url(#pwash)"/>
+        <ellipse cx="70%" cy="40%" rx="20%" ry="10%" fill="url(#pg1)" filter="url(#pwash)"/>
+        <ellipse cx="25%" cy="65%" rx="18%" ry="14%" fill="url(#pg1)" filter="url(#pwash)"/>
+        <ellipse cx="65%" cy="85%" rx="22%" ry="11%" fill="url(#pg2)" filter="url(#pwash)"/>
+      </svg>
+
+      <svg class="portrait-hero-svg" viewBox="0 0 300 100">
+        <path d="M0,22 C60,22 100,50 150,50" stroke="${C.P}" fill="none" stroke-width="1.3" opacity="0.45"/>
+        <path d="M0,78 C60,78 100,50 150,50" stroke="${C.H}" fill="none" stroke-width="1.3" opacity="0.45"/>
+        <path d="M150,50 L300,50" stroke="${C.gold}" fill="none" stroke-width="1.3" opacity="0.6"/>
+        <circle cx="150" cy="50" r="2.5" fill="${C.gold}"/>
+      </svg>
+
+      <h1 class="portrait-title">Phorion × Hesperon</h1>
+      <p class="portrait-subtitle">Two paths, separately walked, then converging</p>
+
+      <div class="portrait-divider"><span class="mark"></span></div>
+
+      <div class="portrait-list">
+        <div class="portrait-centerline"></div>
+        <div class="portrait-cols">
+          <span class="portrait-col-label p">phorion</span>
+          <span class="portrait-col-label h">hesperon</span>
+        </div>
+        ${rows}
+      </div>
+
+      <div class="portrait-divider"><span class="mark"></span></div>
+
+      <div class="portrait-stories" id="portrait-stories">
+        <div class="portrait-stories-title">all storylines</div>
+        ${STORIES.map(s => `<a class="portrait-story" href="${s.url}" style="--sc:${s.color}">
+          <span class="portrait-story-dot"></span>
+          <span class="portrait-story-main">
+            <span class="portrait-story-name">${esc(s.name)}</span>
+            <span class="portrait-story-desc">${esc(s.desc)}</span>
+          </span>
+          <span class="portrait-story-arrow">→</span>
+        </a>`).join('')}
+      </div>
+    </div>
+    ${renderDetail()}`;
+}
+
+function renderMultiline() {
+  const { vw, vh } = state;
+  const stories = STORIES.map((s, i) => {
+    const y = s.yR * vh;
+    const path = makeWave(y, vw, s.seed, s.amp, s.w);
+    const isActive = !!s.active;
+    return `<g data-story-id="${s.id}">
+      <path d="${path}" stroke="transparent" fill="none" stroke-width="28" class="story-hit"/>
+      <path d="${path}" stroke="${s.color}" fill="none"
+        stroke-width="${isActive ? 6 : 4}" opacity="0.08"
+        style="transition: opacity 0.3s; pointer-events: none;" data-glow="1"/>
+      <path d="${path}" stroke="${s.color}" fill="none" class="story-path"
+        stroke-width="${isActive ? 2.5 : 1.5}"
+        opacity="${isActive ? 0.85 : 0.45}"
+        stroke-dasharray="3000"
+        style="animation: drawLine 2s ease ${(i*0.15).toFixed(2)}s both; pointer-events: none;" data-main="1"/>
+      <text x="36" y="${y - (s.amp + 8)}" fill="${s.color}"
+        font-size="${isActive ? 14 : 12}" font-style="italic"
+        opacity="${isActive ? 0.7 : 0.4}"
+        style="font-family: 'Cormorant Garamond', serif; pointer-events: none; animation: fadeIn 0.5s ease ${(i*0.15+0.3).toFixed(2)}s both;" data-label="1">
+        ${esc(s.name)}
+      </text>
+    </g>`;
+  }).join('');
+
+  return `${renderMist()}
+    <div class="multi-root">
+      <div class="multi-back" id="multi-back">← chronicle</div>
+      <div class="multi-eyebrow">all storylines</div>
+      <svg class="multi-svg" width="${vw}" height="${vh}">
+        <defs>
+          <filter id="mwash">
+            <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="3" seed="11" result="w"/>
+            <feDisplacementMap in="SourceGraphic" in2="w" scale="40" xChannelSelector="R" yChannelSelector="G"/>
+            <feGaussianBlur stdDeviation="20"/>
+          </filter>
+          <radialGradient id="mg1" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="${C.gold}" stop-opacity="0.05"/>
+            <stop offset="100%" stop-color="${C.gold}" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <ellipse cx="${vw*0.2}" cy="${vh*0.3}" rx="${vw*0.15}" ry="${vh*0.12}" fill="url(#mg1)" filter="url(#mwash)"/>
+        <ellipse cx="${vw*0.7}" cy="${vh*0.6}" rx="${vw*0.18}" ry="${vh*0.1}" fill="url(#mg1)" filter="url(#mwash)"/>
+        <ellipse cx="${vw*0.45}" cy="${vh*0.8}" rx="${vw*0.12}" ry="${vh*0.08}" fill="url(#mg1)" filter="url(#mwash)"/>
+        ${stories}
+      </svg>
+    </div>
+    ${renderDetail()}`;
+}
+
+// ──────── RENDER + BIND ────────
+function render() {
+  if (state.portrait) {
+    document.documentElement.classList.add('portrait-mode');
+    document.body.classList.add('portrait-mode');
+    app.innerHTML = renderPortrait();
+    bindPortrait();
+  } else {
+    document.documentElement.classList.remove('portrait-mode');
+    document.body.classList.remove('portrait-mode');
+    if (state.view === 'multiline') {
+      app.innerHTML = renderMultiline();
+      bindMultiline();
+    } else {
+      app.innerHTML = renderTimeline();
+      bindTimeline();
+    }
+  }
+  bindDetail();
+}
+
+function openDetail(id) {
+  const e = EVENTS.find(x => x.id === id);
+  if (!e) return;
+  state.detail = e;
+  render();
+}
+
+function closeDetail() {
+  if (!state.detail) return;
+  const overlay = document.getElementById('detail-overlay');
+  const card = document.getElementById('detail-card');
+  if (!overlay || !card) {
+    state.detail = null;
+    render();
+    return;
+  }
+  if (overlay.dataset.closing) return;
+  overlay.dataset.closing = '1';
+  overlay.classList.add('closing');
+  card.classList.add('closing');
+  setTimeout(() => {
+    state.detail = null;
+    render();
+  }, 220);
+}
+
+function bindDetail() {
+  const overlay = document.getElementById('detail-overlay');
+  if (!overlay) return;
+  overlay.addEventListener('click', closeDetail);
+  document.getElementById('detail-card').addEventListener('click', ev => ev.stopPropagation());
+  document.getElementById('detail-close').addEventListener('click', closeDetail);
+}
+
+function bindTimeline() {
+  document.querySelectorAll('.node-label').forEach(el => {
+    el.addEventListener('click', ev => {
+      ev.stopPropagation();
+      if (!state.drag.moved) openDetail(el.dataset.eventId);
+    });
+  });
+  const zo = document.getElementById('zoom-out');
+  if (zo) zo.addEventListener('click', ev => {
+    ev.stopPropagation();
+    if (state.drag.moved) return;
+    state.view = 'multiline';
+    history.replaceState(null, '', '#storylines');
+    render();
+  });
+}
+
+function bindPortrait() {
+  // portrait shows full text inline — no detail card needed
+}
+
+function bindMultiline() {
+  document.getElementById('multi-back').addEventListener('click', () => {
+    state.view = 'timeline';
+    history.replaceState(null, '', location.pathname + location.search);
+    render();
+  });
+  document.querySelectorAll('[data-story-id]').forEach(g => {
+    const hit = g.querySelector('.story-hit');
+    const glow = g.querySelector('[data-glow]');
+    const main = g.querySelector('[data-main]');
+    const label = g.querySelector('[data-label]');
+    const story = STORIES.find(s => s.id === g.dataset.storyId);
+    hit.addEventListener('click', () => {
+      if (story.url) location.href = story.url;
+    });
+    hit.addEventListener('mousemove', ev => {
+      showTooltip(story.desc, ev.clientX, ev.clientY);
+      if (glow) glow.style.opacity = '0.2';
+      if (main) main.style.opacity = '1';
+      if (label) label.setAttribute('opacity', '1');
+    });
+    hit.addEventListener('mouseleave', () => {
+      hideTooltip();
+      if (glow) glow.style.opacity = '0.08';
+      if (main) main.style.opacity = story.active ? '0.85' : '0.45';
+      if (label) label.setAttribute('opacity', story.active ? '0.7' : '0.4');
+    });
+  });
+}
+
+function showTooltip(text, x, y) {
+  let tt = document.getElementById('tooltip');
+  if (!tt) {
+    tt = document.createElement('div');
+    tt.id = 'tooltip';
+    tt.className = 'tooltip';
+    document.body.appendChild(tt);
+  }
+  tt.textContent = text;
+  tt.style.left = (x + 16) + 'px';
+  tt.style.top = (y - 12) + 'px';
+}
+
+function hideTooltip() {
+  const tt = document.getElementById('tooltip');
+  if (tt) tt.remove();
+}
+
+// ──────── SCROLL (timeline only, no re-render) ────────
+function applyScroll(v) {
+  const max = CANVAS_W - state.vw;
+  v = Math.max(0, Math.min(v, max));
+  state.scrollX = v;
+  const canvas = document.getElementById('canvas');
+  if (canvas) canvas.style.transform = `translateX(${-v}px)`;
+  state.nearEnd = v > max - 300;
+  const zo = document.getElementById('zoom-out');
+  if (zo) zo.classList.toggle('active', state.nearEnd);
+  const fill = document.getElementById('progress-fill');
+  if (fill) fill.style.width = `${(v / Math.max(1, max)) * 100}%`;
+}
+
+// ──────── GLOBAL EVENTS ────────
+function isTimeline() {
+  return !state.portrait && state.view === 'timeline';
+}
+
+window.addEventListener('wheel', e => {
+  if (!isTimeline() || state.detail) return;
+  e.preventDefault();
+  applyScroll(state.scrollX + e.deltaY + e.deltaX);
+}, { passive: false });
+
+window.addEventListener('pointerdown', e => {
+  if (!isTimeline() || state.detail) return;
+  state.drag = { down:true, startX:e.clientX, startScroll:state.scrollX, moved:false };
+});
+window.addEventListener('pointermove', e => {
+  if (!state.drag.down) return;
+  const dx = state.drag.startX - e.clientX;
+  if (Math.abs(dx) > 3) state.drag.moved = true;
+  applyScroll(state.drag.startScroll + dx);
+});
+window.addEventListener('pointerup', () => { state.drag.down = false; });
+window.addEventListener('pointercancel', () => { state.drag.down = false; });
+
+window.addEventListener('touchstart', e => {
+  if (!isTimeline() || state.detail) return;
+  const t = e.touches[0];
+  state.drag = { down:true, startX:t.clientX, startScroll:state.scrollX, moved:false };
+}, { passive: true });
+window.addEventListener('touchmove', e => {
+  if (!state.drag.down) return;
+  e.preventDefault();
+  const t = e.touches[0];
+  const dx = state.drag.startX - t.clientX;
+  if (Math.abs(dx) > 3) state.drag.moved = true;
+  applyScroll(state.drag.startScroll + dx);
+}, { passive: false });
+window.addEventListener('touchend', () => { state.drag.down = false; });
+
+window.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeDetail();
+});
+
+// ──────── RESIZE + INIT ────────
+function onResize() {
+  state.vw = window.innerWidth;
+  state.vh = window.innerHeight;
+  state.portrait = window.innerHeight > window.innerWidth * 1.15;
+  render();
+}
+
+let resizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(onResize, 100);
+});
+
+state.portrait = window.innerHeight > window.innerWidth * 1.15;
+// 从阅读页「← All Storylines」返回时直达 multiline 视图（竖屏则滚到 storylines 区块）
+if (location.hash === '#storylines') state.view = 'multiline';
+render();
+if (location.hash === '#storylines' && state.portrait) {
+  const sec = document.getElementById('portrait-stories');
+  if (sec) sec.scrollIntoView();
+}
+</script>
+<script src="no-copy.js"></script>
+</body>
+</html>
